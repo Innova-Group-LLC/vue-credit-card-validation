@@ -1,6 +1,6 @@
 /*!
- * vue-credit-card-validation v1.0.3 
- * (c) 2022 Michael Wuori
+ * vue-credit-card-validation v1.0.5 
+ * (c) 2023 Michael Wuori
  * Released under the MIT License.
  */
 var cards = [
@@ -112,6 +112,15 @@ var validation = {
         return { month: month, year: year };
     },
 
+    cardHolderVal: function (value) {
+        var parts = value.split(" ");
+        var name = parts[0];
+        var surname = parts[1];
+        var args = parts.slice(2);
+
+        return { name: name, surname: surname, args: args };
+    },
+
     validateCardNumber: function (num) {
         num = (num + '').replace(/\s+|-/g, '');
         if (!/^\d+$/.test(num)) { return false; }
@@ -149,30 +158,9 @@ var validation = {
         if (!/^\d+$/.test(year)) { return false; }
         if (!(1 <= month && month <= 12)) { return false; }
 
-        if (year.length === 2) {
-            if (year < 70) {
-                year = "20" + year;
-            } else {
-                year = "19" + year;
-            }
-        }
+        if (year.length !== 4) { return false;}
 
-        console.log(year);
-
-        if (year.length !== 4) { return false; }
-
-        var expiry = new Date(year, month);
-        var currentTime = new Date;
-
-        // Months start from 0 in JavaScript
-        expiry.setMonth(expiry.getMonth() - 1);
-
-        // The cc expires at the end of the month,
-        // so we need to make the expiry the first day
-        // of the month after
-        expiry.setMonth(expiry.getMonth() + 1, 1);
-
-        return expiry > currentTime;
+        return true;
     },
 
     validateCardCVC: function (cvc, type) {
@@ -190,6 +178,29 @@ var validation = {
             // Check against all types
             return (cvc.length >= 3) && (cvc.length <= 4);
         }
+    },
+
+    validateCardHolder: function (name, surname, args) {
+        if(!name){
+            return false;
+        }
+
+        name = name.toString().trim();
+        if (!/^[A-Za-z\s]+$/.test(name)) { return false; }
+
+        if(!surname){
+            var assign;
+            ((assign = validation.cardHolderVal(name), name = assign.name, surname = assign.surname, args = assign.args));
+        }
+
+        // Allow passing an object
+        if ((typeof name === 'object') && 'name' in name) {
+            var assign$1;
+            ((assign$1 = name, name = assign$1.name, surname = assign$1.surname, args = assign$1.args));
+        }
+        if (!surname) { return false;}
+
+        return !!(name.length && surname.length && !args.length);
     },
 
     cardType: function (num) {
@@ -219,7 +230,7 @@ var validation = {
     },
 
     formatExpiry: function (expiry) {
-        var parts = expiry.match(/^\D*(\d{1,2})(\D+)?(\d{1,4})?/);
+        var parts = expiry.match(/^\D*(\d{1,2})(\D+)?(\d{1,2})?/);
         if (!parts) { return ''; }
 
         var mon = parts[1] || '';
@@ -242,6 +253,20 @@ var validation = {
         }
 
         return mon + sep + year;
+    },
+
+    formatCardHolder: function (cardholder) {
+        var formattedHolder = '';
+        formattedHolder = cardholder.replace(/^\s+/g, '');
+        if (/^[A-Za-z]+\s+[A-Za-z]+(\s*)$/.test(formattedHolder)) {
+            // Если да, то заменяем последовательность пробелов на один
+            formattedHolder = formattedHolder.replace(/\s+/g, ' ');
+            formattedHolder = formattedHolder.trim();
+        }
+        formattedHolder = formattedHolder.replace(/\s+(?=\s*$)/, ' ');
+
+
+        return formattedHolder;
     }
 };
 
@@ -372,6 +397,19 @@ var cardFormatUtils = {
             value = value.replace(/\D/g, '');
             return cardFormatUtils.safeVal(value, target, e);
         });
+    },
+
+    // Format Cardholder
+
+    reFormatCardHolder: function (e) {
+        var target = e.currentTarget;
+        return setTimeout(function () {
+            var value = target.value;
+            value = cardFormatUtils.replaceFullWidthChars(value);
+            value = value.replace(/[^A-Za-z\s]+/g, '');
+            value = validation.formatCardHolder(value);
+            return cardFormatUtils.safeVal(value, target, e);
+        })
     },
 
     // Format Card Number
@@ -531,7 +569,7 @@ var cardFormatUtils = {
 
     // Adds maxlength to Expiry field
     handleExpiryAttributes: function(e){
-        e.setAttribute('maxlength', 9);
+        e.setAttribute('maxlength', 7);
     },
 
     // Format CVC
@@ -564,6 +602,13 @@ var cardFormatUtils = {
 
         // Char is a number or a space
         return (!!/[\d\s]/.test(input)) ? true : e.preventDefault();
+    },
+
+    restrictLatin: function (e) {
+        var input = String.fromCharCode(e.which);
+
+        // char is a latin letter or a space
+        return (!!/[A-Za-z\s]/.test(input)) ? true : e.preventDefault();
     },
 
     restrictCardNumber: function (e) {
@@ -607,6 +652,18 @@ var cardFormatUtils = {
         return val.length <= 4;
     },
 
+    restrictCardHolder: function (e) {
+        var target = e.currentTarget;
+        var letter = String.fromCharCode(e.which);
+
+        if (!/^[A-Za-z\s]+$/.test(letter)) { return; }
+
+        if (cardFormatUtils.hasTextSelected(target)) { return; }
+
+        var val = target.value + letter;
+        return val.length <= 60;
+    },
+
     setCardType: function (e) {
         
         var target = e.currentTarget;
@@ -645,6 +702,7 @@ var format = {
     validateCardNumber: validation.validateCardNumber,
     validateCardCVC: validation.validateCardCVC,
     validateCardExpiry: validation.validateCardExpiry,
+    validateCardHolder: validation.validateCardHolder,
     
     setCardType: function(el) {
         cardFormatUtils.setCardType(el);
@@ -660,6 +718,15 @@ var format = {
         el.addEventListener('paste', cardFormatUtils.reFormatCVC);
         el.addEventListener('change', cardFormatUtils.reFormatCVC);
         el.addEventListener('input', cardFormatUtils.reFormatCVC);
+        return this;
+    },
+
+    formatCardHolder: function (el) {
+        el.addEventListener('keypress', cardFormatUtils.restrictLatin);
+        el.addEventListener('keypress', cardFormatUtils.restrictCardHolder);
+        el.addEventListener('paste', cardFormatUtils.reFormatCardHolder);
+        el.addEventListener('change', cardFormatUtils.reFormatCardHolder);
+        el.addEventListener('input', cardFormatUtils.reFormatCardHolder);
         return this;
     },
 
@@ -696,6 +763,14 @@ var format = {
         el.addEventListener('change', cardFormatUtils.restrictNumeric);
         el.addEventListener('input', cardFormatUtils.restrictNumeric);
         return this;
+    },
+
+    restrictLatin: function (el) {
+        el.addEventListener('keypress', cardFormatUtils.restrictLatin);
+        el.addEventListener('paste', cardFormatUtils.restrictLatin);
+        el.addEventListener('change', cardFormatUtils.restrictLatin);
+        el.addEventListener('input', cardFormatUtils.restrictLatin);
+        return this;
     }
 };
 
@@ -721,6 +796,7 @@ var VueCardFormat = {
               binding.instance.cardBrand = el.dataset.cardBrand;
             }
           });
+          // pasting a card number fails to update brand, etc.
           el.addEventListener('paste', function () {
             setTimeout(function () {
               el.dispatchEvent(keyupEvent);

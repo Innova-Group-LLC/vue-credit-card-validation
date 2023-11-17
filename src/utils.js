@@ -130,6 +130,19 @@ const cardFormatUtils = {
         });
     },
 
+    // Format Cardholder
+
+    reFormatCardHolder: function (e) {
+        let target = e.currentTarget;
+        return setTimeout(function () {
+            let value = target.value;
+            value = cardFormatUtils.replaceFullWidthChars(value);
+            value = value.replace(/[^A-Za-z\s]+/g, '');
+            value = validation.formatCardHolder(value);
+            return cardFormatUtils.safeVal(value, target, e);
+        })
+    },
+
     // Format Card Number
 
     reFormatCardNumber: function (e) {
@@ -287,7 +300,7 @@ const cardFormatUtils = {
 
     // Adds maxlength to Expiry field
     handleExpiryAttributes: function(e){
-        e.setAttribute('maxlength', 9);
+        e.setAttribute('maxlength', 7);
     },
 
     // Format CVC
@@ -320,6 +333,13 @@ const cardFormatUtils = {
 
         // Char is a number or a space
         return (!!/[\d\s]/.test(input)) ? true : e.preventDefault();
+    },
+
+    restrictLatin: function (e) {
+        let input = String.fromCharCode(e.which);
+
+        // char is a latin letter or a space
+        return (!!/[A-Za-z\s]/.test(input)) ? true : e.preventDefault();
     },
 
     restrictCardNumber: function (e) {
@@ -361,6 +381,18 @@ const cardFormatUtils = {
 
         let val = target.value + digit;
         return val.length <= 4;
+    },
+
+    restrictCardHolder: function (e) {
+        let target = e.currentTarget;
+        let letter = String.fromCharCode(e.which);
+
+        if (!/^[A-Za-z\s]+$/.test(letter)) { return; }
+
+        if (cardFormatUtils.hasTextSelected(target)) { return; }
+
+        let val = target.value + letter;
+        return val.length <= 60;
     },
 
     setCardType: function (e) {

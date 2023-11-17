@@ -18,6 +18,15 @@ const validation = {
         return { month, year };
     },
 
+    cardHolderVal: function (value) {
+        const parts = value.split(" ");
+        const name = parts[0];
+        const surname = parts[1];
+        const args = parts.slice(2);
+
+        return { name, surname, args };
+    },
+
     validateCardNumber: function (num) {
         num = (num + '').replace(/\s+|-/g, '');
         if (!/^\d+$/.test(num)) { return false; }
@@ -53,28 +62,9 @@ const validation = {
         if (!/^\d+$/.test(year)) { return false; }
         if (!(1 <= month && month <= 12)) { return false; }
 
-        if (year.length === 2) {
-            if (year < 70) {
-                year = `20${year}`;
-            } else {
-                year = `19${year}`;
-            }
-        }
+        if (year.length !== 4) { return false;}
 
-        if (year.length !== 4) { return false; }
-
-        let expiry = new Date(year, month);
-        let currentTime = new Date;
-
-        // Months start from 0 in JavaScript
-        expiry.setMonth(expiry.getMonth() - 1);
-
-        // The cc expires at the end of the month,
-        // so we need to make the expiry the first day
-        // of the month after
-        expiry.setMonth(expiry.getMonth() + 1, 1);
-
-        return expiry > currentTime;
+        return true;
     },
 
     validateCardCVC: function (cvc, type) {
@@ -92,6 +82,27 @@ const validation = {
             // Check against all types
             return (cvc.length >= 3) && (cvc.length <= 4);
         }
+    },
+
+    validateCardHolder: function (name, surname, args) {
+        if(!name){
+            return false;
+        }
+
+        name = name.toString().trim();
+        if (!/^[A-Za-z\s]+$/.test(name)) { return false; }
+
+        if(!surname){
+            ({ name, surname, args } = validation.cardHolderVal(name));
+        }
+
+        // Allow passing an object
+        if ((typeof name === 'object') && 'name' in name) {
+            ({ name, surname, args } = name);
+        }
+        if (!surname) { return false;}
+
+        return !!(name.length && surname.length && !args.length);
     },
 
     cardType: function (num) {
@@ -121,7 +132,7 @@ const validation = {
     },
 
     formatExpiry: function (expiry) {
-        let parts = expiry.match(/^\D*(\d{1,2})(\D+)?(\d{1,4})?/);
+        let parts = expiry.match(/^\D*(\d{1,2})(\D+)?(\d{1,2})?/);
         if (!parts) { return ''; }
 
         let mon = parts[1] || '';
@@ -144,6 +155,20 @@ const validation = {
         }
 
         return mon + sep + year;
+    },
+
+    formatCardHolder: function (cardholder) {
+        let formattedHolder = '';
+        formattedHolder = cardholder.replace(/^\s+/g, '');
+        if (/^[A-Za-z]+\s+[A-Za-z]+(\s*)$/.test(formattedHolder)) {
+            // Если да, то заменяем последовательность пробелов на один
+            formattedHolder = formattedHolder.replace(/\s+/g, ' ');
+            formattedHolder = formattedHolder.trim();
+        }
+        formattedHolder = formattedHolder.replace(/\s+(?=\s*$)/, ' ');
+
+
+        return formattedHolder;
     }
 };
 

@@ -6,6 +6,7 @@ const format = {
     validateCardNumber: validation.validateCardNumber,
     validateCardCVC: validation.validateCardCVC,
     validateCardExpiry: validation.validateCardExpiry,
+    validateCardHolder: validation.validateCardHolder,
     
     setCardType: function(el) {
         cardFormatUtils.setCardType(el);
@@ -21,6 +22,15 @@ const format = {
         el.addEventListener('paste', cardFormatUtils.reFormatCVC);
         el.addEventListener('change', cardFormatUtils.reFormatCVC);
         el.addEventListener('input', cardFormatUtils.reFormatCVC);
+        return this;
+    },
+
+    formatCardHolder: function (el) {
+        el.addEventListener('keypress', cardFormatUtils.restrictLatin);
+        el.addEventListener('keypress', cardFormatUtils.restrictCardHolder);
+        el.addEventListener('paste', cardFormatUtils.reFormatCardHolder);
+        el.addEventListener('change', cardFormatUtils.reFormatCardHolder);
+        el.addEventListener('input', cardFormatUtils.reFormatCardHolder);
         return this;
     },
 
@@ -56,6 +66,14 @@ const format = {
         el.addEventListener('paste', cardFormatUtils.restrictNumeric);
         el.addEventListener('change', cardFormatUtils.restrictNumeric);
         el.addEventListener('input', cardFormatUtils.restrictNumeric);
+        return this;
+    },
+
+    restrictLatin: function (el) {
+        el.addEventListener('keypress', cardFormatUtils.restrictLatin);
+        el.addEventListener('paste', cardFormatUtils.restrictLatin);
+        el.addEventListener('change', cardFormatUtils.restrictLatin);
+        el.addEventListener('input', cardFormatUtils.restrictLatin);
         return this;
     }
 }

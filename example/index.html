@@ -60,6 +60,15 @@
               </div>
               <div class="col-12 col-sm-4">
                 <div class="form-group">
+                  <label>Card holder:</label>
+                  <input ref="cardholderInput" :data-error="(cardErrors.cardHolder)?true:false" v-model="cardHolder" class="form-control" v-cardformat:formatCardHolder>
+                  <div v-if="cardErrors.cardHolder" class="error">
+                    <small>{{ cardErrors.cardHolder }}</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-sm-4">
+                <div class="form-group">
                   <label>Restrict Numeric:</label>
                   <input placeholder="Only numbers can be entered here..." v-model="cardPostal" class="form-control" v-cardformat:restrictNumeric>
                 </div>
@@ -83,6 +92,8 @@
                       <li class="list-group-item px-1">Card Brand: <span v-if="!cardBrand" style="color: #ccc;">(awating input...)</span><code v-if="cardBrand" class="px-2">{{ cardBrand }}</code></li>
                       <li class="list-group-item px-1">Brand Classname: <code class="px-2">{{ cardBrandClass }}</code></li>
                       <li class="list-group-item px-1">Number: <code class="px-2">{{ cardNumber }}</code></li>
+                      <li class="list-group-item px-1">CVC: <code class="px-2">{{ cardCvc }}</code></li>
+                      <li class="list-group-item px-1">Holder: <code class="px-2">{{ cardHolder }}</code></li>
                       <li class="list-group-item px-1">Expiration: <code class="px-2">{{ cardExpiry }}</code></li>
                     </ul>
                   </div>
@@ -175,10 +186,11 @@
           cardExpiry: null,
           cardCvc: null,
           cardPostal: null,
-          cardErrors: {},
+          cardHolder: null,
           // declaring card-brand in data{} enables card brand name/classes.
+          cardErrors: {},
           cardBrand: null,
-        } 
+        }
       },
       methods: {
         validate: function(){
@@ -201,6 +213,11 @@
             this.cardErrors.cardCvc = "Invalid CVC.";
           };
 
+          // validate card holder
+          if (!this.$cardFormat.validateCardHolder(this.cardHolder)) {
+            this.cardErrors.cardHolder = "Invalid cardholder.";
+          };
+
         },
         reset: function(){
           this.cardErrors = {};
@@ -208,6 +225,7 @@
           this.cardExpiry = null;
           this.cardCvc = null;
           this.cardPostal = null;
+          this.cardHolder = null;
           this.$refs.cardNumInput.focus();
         },
         prefill: function(ccNum){
