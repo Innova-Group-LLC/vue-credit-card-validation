@@ -13,24 +13,24 @@ const classifyRE = /(?:^|[-_\/])(\w)/g
 function classify (str) {
   return str.replace(classifyRE, toUpper)
 }
-const moduleName = classify(pack.name)
+const moduleName = classify('vue-credit-card-validation')
 
 const entries = {
   commonjs: {
     entry: 'src/index.js',
-    dest: `dist/${pack.name}.common.js`,
+    dest: `dist/vue-credit-card-validation.common.js`,
     format: 'cjs',
     banner
   },
   esm: {
     entry: 'src/index.js',
-    dest: `dist/${pack.name}.esm.js`,
+    dest: `dist/vue-credit-card-validation.esm.js`,
     format: 'es',
     banner
   },
   production: {
     entry: 'src/index.js',
-    dest: `dist/${pack.name}.min.js`,
+    dest: `dist/vue-credit-card-validation.min.js`,
     format: 'umd',
     env: 'production',
     moduleName,
@@ -38,7 +38,7 @@ const entries = {
   },
   development: {
     entry: 'src/index.js',
-    dest: `dist/${pack.name}.js`,
+    dest: `dist/vue-credit-card-validation.js`,
     format: 'umd',
     env: 'development',
     moduleName,

@@ -1,5 +1,5 @@
 /*!
- * vue-credit-card-validation v1.0.5 
+ * @alekseyburn/vue-credit-card-validation v1.0.5 
  * (c) 2023 Michael Wuori
  * Released under the MIT License.
  */
