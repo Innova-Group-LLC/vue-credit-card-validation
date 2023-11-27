@@ -84,5 +84,21 @@ export default [
         length: [16],
         cvcLength: [3],
         luhn: true
+    },
+    {
+        type: "Humo",
+        patterns: [9860],
+        format: /(\d{1,4})/g,
+        length: [16],
+        cvcLength: [3],
+        luhn: true,
+    },
+    {
+        type: "Uzcard",
+        patterns: [8600],
+        format: /(\d{1,4})/g,
+        length: [16],
+        cvcLength: [3],
+        luhn: true,
     }
 ]
