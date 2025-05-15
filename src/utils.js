@@ -314,6 +314,11 @@ const cardFormatUtils = {
         });
     },
 
+    // Adds maxlength to CVC field
+    handleCVCAttributes: function(e){
+        e.setAttribute('maxlength', 3);
+    },
+
     // Restrictions
     restrictNumeric: function (e) {
 
