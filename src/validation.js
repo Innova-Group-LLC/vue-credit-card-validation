@@ -80,7 +80,7 @@ const validation = {
             return Array.from(card.cvcLength).includes(cvc.length);
         } else {
             // Check against all types
-            return (cvc.length >= 3) && (cvc.length <= 4);
+            return cvc.length === 3;
         }
     },
 
