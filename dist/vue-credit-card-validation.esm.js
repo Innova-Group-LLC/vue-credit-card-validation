@@ -1,6 +1,6 @@
 /*!
- * @alekseyburn/vue-credit-card-validation v1.0.5 
- * (c) 2023 Michael Wuori
+ * @Innova-Group-LLC/vue-credit-card-validation v1.0.7 
+ * (c) 2025 Michael Wuori
  * Released under the MIT License.
  */
 var cards = [
@@ -192,7 +192,7 @@ var validation = {
             return Array.from(card.cvcLength).includes(cvc.length);
         } else {
             // Check against all types
-            return (cvc.length >= 3) && (cvc.length <= 4);
+            return cvc.length === 3;
         }
     },
 
@@ -594,7 +594,7 @@ var cardFormatUtils = {
         return setTimeout(function () {
             var value = target.value;
             value = cardFormatUtils.replaceFullWidthChars(value);
-            value = value.replace(/\D/g, '').slice(0, 4);
+            value = value.replace(/\D/g, '').slice(0, 3);
             return cardFormatUtils.safeVal(value, target, e);
         });
     },
@@ -665,7 +665,7 @@ var cardFormatUtils = {
         if (cardFormatUtils.hasTextSelected(target)) { return; }
 
         var val = target.value + digit;
-        return val.length <= 4;
+        return val.length <= 3;
     },
 
     restrictCardHolder: function (e) {

@@ -309,7 +309,7 @@ const cardFormatUtils = {
         return setTimeout(function () {
             let value = target.value;
             value = cardFormatUtils.replaceFullWidthChars(value);
-            value = value.replace(/\D/g, '').slice(0, 4);
+            value = value.replace(/\D/g, '').slice(0, 3);
             return cardFormatUtils.safeVal(value, target, e);
         });
     },
@@ -380,7 +380,7 @@ const cardFormatUtils = {
         if (cardFormatUtils.hasTextSelected(target)) { return; }
 
         let val = target.value + digit;
-        return val.length <= 4;
+        return val.length <= 3;
     },
 
     restrictCardHolder: function (e) {
