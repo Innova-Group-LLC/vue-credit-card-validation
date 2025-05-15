@@ -599,6 +599,11 @@ var cardFormatUtils = {
         });
     },
 
+    // Adds maxlength to CVC field
+    handleCVCAttributes: function(e){
+        e.setAttribute('maxlength', 3);
+    },
+
     // Restrictions
     restrictNumeric: function (e) {
 
@@ -729,6 +734,7 @@ var format = {
     },
 
     formatCardCVC: function (el) {
+        cardFormatUtils.handleCVCAttributes(el);
         el.addEventListener('keypress', cardFormatUtils.restrictNumeric);
         el.addEventListener('keypress', cardFormatUtils.restrictCVC);
         el.addEventListener('paste', cardFormatUtils.reFormatCVC);

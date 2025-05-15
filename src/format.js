@@ -17,6 +17,7 @@ const format = {
     },
 
     formatCardCVC: function (el) {
+        cardFormatUtils.handleCVCAttributes(el);
         el.addEventListener('keypress', cardFormatUtils.restrictNumeric);
         el.addEventListener('keypress', cardFormatUtils.restrictCVC);
         el.addEventListener('paste', cardFormatUtils.reFormatCVC);
